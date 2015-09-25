@@ -9,6 +9,7 @@ public class YAML
 	private HashMap<String, String> data;
 	private List<String> writeHistory;
 	private HashSet<String> keys;
+	private HashSet<String> emptyKeys;
 
 	/**
 	 * Default Constructor for initializing an empty YAML object
@@ -18,6 +19,7 @@ public class YAML
 		data = new HashMap<>();
 		writeHistory = new ArrayList<>();
 		keys = new HashSet<>();
+		emptyKeys = new HashSet<>();
 	}
 
 	/**
@@ -416,6 +418,28 @@ public class YAML
 			if (key.indexOf('.') < 0)
 			{
 				returnedKeys.add(key);
+			}
+		}
+		return returnedKeys;
+	}
+
+	/**
+	 * Function to get the keys of the YAML object
+	 * @param subKeys If set to false the function only returns the high level keys
+	 * @param empty If set also empty set keys will be returned
+	 * @return The key set of the YAML object
+	 */
+	public HashSet<String> getKeys(boolean subKeys, boolean empty)
+	{
+		HashSet<String> returnedKeys = getKeys(subKeys);
+		if (empty)
+		{
+			for(String key : emptyKeys)
+			{
+				if(subKeys || key.indexOf('.') < 0)
+				{
+					returnedKeys.add(key);
+				}
 			}
 		}
 		return returnedKeys;
@@ -1060,12 +1084,14 @@ public class YAML
 			if (!writeHistory.contains("empty." + key))
 			{
 				writeHistory.add("empty." + key);
+				emptyKeys.add(key);
 			}
 			return;
 		}
 		else if (writeHistory.contains("empty." + key))
 		{
 			writeHistory.remove(writeHistory.indexOf("empty." + key));
+			emptyKeys.remove(key);
 		}
 		data.put(key, stringValue);
 		if(keys.add(key))
@@ -1169,6 +1195,7 @@ public class YAML
 		data.clear();
 		writeHistory.clear();
 		keys.clear();
+		emptyKeys.clear();
 	}
 
 	/**
@@ -1180,6 +1207,7 @@ public class YAML
 		data = null;
 		writeHistory = null;
 		keys = null;
+		emptyKeys = null;
 	}
 
 	/**
@@ -1212,6 +1240,7 @@ public class YAML
 					if (values.length == 1 && values[0].equals(""))
 					{
 						saveToWriteHistory("empty." + key);
+						emptyKeys.add(key);
 						return;
 					}
 					for (int i = 0; i < values.length; i++)
@@ -1234,6 +1263,7 @@ public class YAML
 					if (values.length == 1 && values[0].equals(""))
 					{
 						saveToWriteHistory("empty." + key);
+						emptyKeys.add(key);
 						return;
 					}
 					int keyIndex = 0;

@@ -5,7 +5,6 @@ import at.pcgamingfreaks.yaml.YAMLNotInitializedException;
 import org.junit.Test;
 
 import java.util.HashSet;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 

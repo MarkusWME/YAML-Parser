@@ -93,6 +93,7 @@ public class YAML
 	 */
 	public void load(String dataString) throws YAMLInvalidContentException
 	{
+		clear();
 		List<Integer> indentations = new ArrayList<>();
 		List<Integer> indentationIndices = new ArrayList<>();
 		indentations.add(0);
@@ -260,7 +261,7 @@ public class YAML
 				{
 					List<String> list = getStringList(inlineKey, null);
 					int listSize = list == null ? 0 : list.size();
-					if (i + listSize < writeCount && !getLogicalLine(i + listSize + 1).startsWith("inline." + inlineKey))
+					if ((i + listSize < writeCount && !getLogicalLine(i + listSize + 1).startsWith("inline." + inlineKey)) || (i + listSize >= writeCount))
 					{
 						yamlString.append(inlineKey).append(": [");
 						yamlString.append(getWriteValue(inlineKey + ".0"));
@@ -387,7 +388,7 @@ public class YAML
 	 * Function to get the keys of the YAML object
 	 * @return The keys of the YAML object in a Set object
 	 */
-	public Set<String> getKeys()
+	public HashSet<String> getKeys()
 	{
 		return new HashSet<>(keys);
 	}
@@ -397,7 +398,7 @@ public class YAML
 	 * @param subKeys If set to false the function only returns the high level keys
 	 * @return The key set of the YAML object
 	 */
-	public Set<String> getKeys(boolean subKeys)
+	public HashSet<String> getKeys(boolean subKeys)
 	{
 		if (subKeys)
 		{

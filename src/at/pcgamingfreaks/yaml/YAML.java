@@ -246,7 +246,13 @@ public class YAML
 			}
 			inline = false;
 			yamlString.append("\n");
-			if (writeLine.startsWith("group."))
+			if (writeLine.startsWith("empty."))
+			{
+				writeLine = writeLine.substring(6);
+				yamlString.append(writeLine);
+				yamlString.append(": []");
+			}
+			else if (writeLine.startsWith("group."))
 			{
 				writeLine = writeLine.substring(6);
 				yamlString.append(getIndentation(writeLine));
@@ -961,6 +967,10 @@ public class YAML
 		{
 			return data.get(key);
 		}
+		else if (writeHistory.contains("empty." + key))
+		{
+			return "";
+		}
 		throw new YAMLKeyNotFoundException("The key you wanted to retrieve (\"" + key + "\") could not be found in the YAML object");
 	}
 
@@ -1045,6 +1055,18 @@ public class YAML
 	public void set(String key, Object value)
 	{
 		String stringValue = value.toString();
+		if (stringValue.equals(""))
+		{
+			if (!writeHistory.contains("empty." + key))
+			{
+				writeHistory.add("empty." + key);
+			}
+			return;
+		}
+		else if (writeHistory.contains("empty." + key))
+		{
+			writeHistory.remove(writeHistory.indexOf("empty." + key));
+		}
 		data.put(key, stringValue);
 		if(keys.add(key))
 		{
@@ -1072,7 +1094,7 @@ public class YAML
 							index++;
 							break;
 						}
-					} while (currentKey.startsWith("group." + group) || currentKey.startsWith("key." + group) || currentKey.startsWith("inline." + group) || currentKey.startsWith(" ") || currentKey.startsWith("\n") || currentKey.startsWith("#"));
+					} while (currentKey.startsWith("empty." + group) || currentKey.startsWith("group." + group) || currentKey.startsWith("key." + group) || currentKey.startsWith("inline." + group) || currentKey.startsWith(" ") || currentKey.startsWith("\n") || currentKey.startsWith("#"));
 					writeHistory.add(--index, "key." + key);
 				}
 				else
@@ -1121,7 +1143,7 @@ public class YAML
 										lastIndex++;
 										break;
 									}
-								} while (currentKey.startsWith("group." + lastSubKey) || currentKey.startsWith("key." + lastSubKey) || currentKey.startsWith("inline." + lastSubKey) || currentKey.startsWith(" ") || currentKey.startsWith("\n") || currentKey.startsWith("#"));
+								} while (currentKey.startsWith("empty." + lastSubKey) || currentKey.startsWith("group." + lastSubKey) || currentKey.startsWith("key." + lastSubKey) || currentKey.startsWith("inline." + lastSubKey) || currentKey.startsWith(" ") || currentKey.startsWith("\n") || currentKey.startsWith("#"));
 								writeHistory.add(--lastIndex, "group." + subKey);
 								++writeHistorySize;
 							}
@@ -1187,6 +1209,11 @@ public class YAML
 				{
 					valueString = valueString.substring(1, valueString.length() - 1).trim();
 					String[] values = valueString.split(",");
+					if (values.length == 1 && values[0].equals(""))
+					{
+						saveToWriteHistory("empty." + key);
+						return;
+					}
 					for (int i = 0; i < values.length; i++)
 					{
 						saveToWriteHistory("inline." + key + "." + i);
@@ -1204,6 +1231,11 @@ public class YAML
 				{
 					valueString = valueString.substring(1, valueString.length() - 1).trim();
 					String[] values = valueString.split(",");
+					if (values.length == 1 && values[0].equals(""))
+					{
+						saveToWriteHistory("empty." + key);
+						return;
+					}
 					int keyIndex = 0;
 					int splitIndex;
 					for (String value : values)

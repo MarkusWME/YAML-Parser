@@ -4,6 +4,9 @@ import at.pcgamingfreaks.yaml.YAMLKeyNotFoundException;
 import at.pcgamingfreaks.yaml.YAMLNotInitializedException;
 import org.junit.Test;
 
+import java.util.HashSet;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 
 public class Tests
@@ -42,5 +45,29 @@ public class Tests
 		assertEquals(1, mappingValueTest.getInt("Test"));
 		assertEquals(2, mappingValueTest.getInt("Test2"));
 		assertEquals(3, mappingValueTest.getInt("Test3"));
+	}
+
+	@Test
+	public void testGetKeys() throws YAMLInvalidContentException
+	{
+		YAML keyTest = new YAML("Line1: text\nLine2: text\nLine3: text\nLine4:\n  - group1\n  -group2");
+		HashSet<String> keys = new HashSet<>();
+		keys.add("Line1");
+		keys.add("Line2");
+		keys.add("Line3");
+		assertEquals(keys, keyTest.getKeys(false));
+	}
+
+	@Test
+	public void testGetSubKeys() throws YAMLInvalidContentException
+	{
+		YAML subKeyTest = new YAML("Line1: text\nLine2: text\nLine3: text\nLine4:\n  - group1\n  -group2");
+		HashSet<String> keys = new HashSet<>();
+		keys.add("Line1");
+		keys.add("Line2");
+		keys.add("Line3");
+		keys.add("Line4.0");
+		keys.add("Line4.1");
+		assertEquals(keys, subKeyTest.getKeys(true));
 	}
 }

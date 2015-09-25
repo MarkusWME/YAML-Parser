@@ -316,6 +316,16 @@ public class YAML
 	}
 
 	/**
+	 * Checks if the given key exists in the YAML object
+	 * @param key The key that should be checked
+	 * @return If the key exists in the object or not
+	 */
+	public boolean isSet(String key)
+	{
+		return keys.contains(key);
+	}
+
+	/**
 	 * Function to get the amount of logical lines of the YAML object
 	 * @return Amount of logical lines
 	 * @throws YAMLNotInitializedException If the YAML object is not initialized properly
@@ -380,6 +390,28 @@ public class YAML
 	public Set<String> getKeys()
 	{
 		return new HashSet<>(keys);
+	}
+
+	/**
+	 * Function to get the keys of the YAML object
+	 * @param subKeys If set to false the function only returns the high level keys
+	 * @return The key set of the YAML object
+	 */
+	public Set<String> getKeys(boolean subKeys)
+	{
+		if (subKeys)
+		{
+			return getKeys();
+		}
+		HashSet<String> returnedKeys = new HashSet<>();
+		for (String key : keys)
+		{
+			if (key.indexOf('.') < 0)
+			{
+				returnedKeys.add(key);
+			}
+		}
+		return returnedKeys;
 	}
 
 	/**

@@ -240,7 +240,7 @@ public class YAML
 		for (int i = 0; i < writeCount; i++)
 		{
 			writeLine = getLogicalLine(i);
-			if (inline && writeLine.startsWith("inline." + inlineKey))
+			if (inline && writeLine.startsWith("inline." + inlineKey + '.'))
 			{
 				continue;
 			}
@@ -261,7 +261,7 @@ public class YAML
 				{
 					List<String> list = getStringList(inlineKey, null);
 					int listSize = list == null ? 0 : list.size();
-					if ((i + listSize < writeCount && !getLogicalLine(i + listSize + 1).startsWith("inline." + inlineKey)) || (i + listSize >= writeCount))
+					if ((i + listSize < writeCount && !getLogicalLine(i + listSize + 1).startsWith("inline." + inlineKey + '.')) || (i + listSize >= writeCount))
 					{
 						yamlString.append(inlineKey).append(": [");
 						yamlString.append(getWriteValue(inlineKey + ".0"));
@@ -280,7 +280,7 @@ public class YAML
 						while (i < writeCount)
 						{
 							writeLine = getLogicalLine(++i);
-							if (writeLine.startsWith("inline." + inlineKey))
+							if (writeLine.startsWith("inline." + inlineKey + '.'))
 							{
 								yamlString.append(", ");
 								yamlString.append(getKeyValuePair(writeLine.substring(7), false));

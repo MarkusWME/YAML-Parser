@@ -1325,7 +1325,7 @@ public class YAML
 			int length = valueString.length();
 			if (valueString.charAt(--length) == '\'')
 			{
-				return valueString.substring(1, length).replace("''", "'");
+				return valueString.substring(1, length).replace("\\'", "'");
 			}
 			throw new YAMLInvalidContentException("The value for the given string is invalid");
 		}
@@ -1334,7 +1334,7 @@ public class YAML
 			int length = valueString.length();
 			if (valueString.charAt(--length) == '"')
 			{
-				return valueString.substring(1, length).replace("\\\\", "\\");
+				return valueString.substring(1, length).replace("\\\"", "\"");
 			}
 			throw new YAMLInvalidContentException("The value for the given string is invalid");
 		}

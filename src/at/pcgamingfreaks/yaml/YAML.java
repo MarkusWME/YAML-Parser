@@ -1334,7 +1334,7 @@ public class YAML
 			int length = valueString.length();
 			if (valueString.charAt(--length) == '"')
 			{
-				return valueString.substring(1, length).replace("\\\"", "\"");
+				return valueString.substring(1, length).replace("\\\"", "\"").replace("\\\\", "\\");
 			}
 			throw new YAMLInvalidContentException("The value for the given string is invalid");
 		}
@@ -1383,7 +1383,7 @@ public class YAML
 	 */
 	private String getWriteValue(String key)
 	{
-		key = data.get(key).replace("\\", "\\\\");
+		key = data.get(key).replace("\\", "\\\\").replace("\"", "\\");
 		if (key.indexOf(' ') >= 0)
 		{
 			return '"' + key + '"';

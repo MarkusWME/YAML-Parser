@@ -14,18 +14,19 @@ public class Tests
 	public void testComments() throws YAMLNotInitializedException, YAMLInvalidContentException
 	{
 		YAML commentTest = new YAML("# This is a comment Test\n     #And this is another comment");
-		assertEquals(1, commentTest.getLogicalLineCount());
-		assertEquals("# This is a comment Test\n     #And this is another comment", commentTest.getLogicalLine(0));
+		assertEquals(2, commentTest.getLogicalLineCount());
+		assertEquals("# This is a comment Test", commentTest.getLogicalLine(0));
+		assertEquals("     #And this is another comment", commentTest.getLogicalLine(1));
 	}
 
 	@Test
 	public void testCommentsWithValues() throws YAMLNotInitializedException, YAMLInvalidContentException
 	{
 		YAML commentValueTest = new YAML("\n# This is a comment Test\n- This is not a comment\n\n# And this is another comment");
-		assertEquals(3, commentValueTest.getLogicalLineCount());
-		assertEquals("\n# This is a comment Test", commentValueTest.getLogicalLine(0));
-		assertEquals("key.0", commentValueTest.getLogicalLine(1));
-		assertEquals("\n# And this is another comment", commentValueTest.getLogicalLine(2));
+		assertEquals(5, commentValueTest.getLogicalLineCount());
+		assertEquals("# This is a comment Test", commentValueTest.getLogicalLine(1));
+		assertEquals("key.0", commentValueTest.getLogicalLine(2));
+		assertEquals("# And this is another comment", commentValueTest.getLogicalLine(4));
 	}
 
 	@Test

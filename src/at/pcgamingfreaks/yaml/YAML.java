@@ -101,32 +101,23 @@ public class YAML
 		indentations.add(0);
 		indentationIndices.add(0);
 		String[] lines = dataString.split("\r?\n");
-		String currentComment = "";
 		String globalKey = "";
 		String key = "";
 		String value = "";
-		boolean firstComment = true;
 		int indentationCount;
 		int indentationIndex = 0;
 		for (String line : lines)
 		{
-			if (line.length() == 0 || line.trim().charAt(0) == '#')
+			if (line.replaceAll("\\s*", "").length() == 0)
 			{
-				if (firstComment)
-				{
-					firstComment = false;
-					currentComment += line;
-				}
-				else
-				{
-					currentComment += "\n" + line;
-				}
+				saveToWriteHistory("emptyline");
+			}
+			else if (line.trim().charAt(0) == '#')
+			{
+				saveToWriteHistory(line);
 			}
 			else
 			{
-				saveToWriteHistory(currentComment);
-				currentComment = "";
-				firstComment = true;
 				indentationCount = 0;
 				while (line.length() > 0)
 				{
@@ -193,7 +184,6 @@ public class YAML
 				}
 			}
 		}
-		saveToWriteHistory(currentComment);
 		keys = new HashSet<>(data.keySet());
 	}
 
@@ -248,10 +238,15 @@ public class YAML
 			}
 			inline = false;
 			yamlString.append("\n");
-			if (writeLine.startsWith("empty."))
+			if (writeLine.equals("emptyline"))
+			{
+				continue;
+			}
+			else if (writeLine.startsWith("empty."))
 			{
 				writeLine = writeLine.substring(6);
-				yamlString.append(writeLine);
+				yamlString.append(getIndentation(writeLine));
+				yamlString.append(getWriteKey(writeLine));
 				yamlString.append(": []");
 			}
 			else if (writeLine.startsWith("group."))
@@ -1383,7 +1378,7 @@ public class YAML
 	 */
 	private String getWriteValue(String key)
 	{
-		key = data.get(key).replace("\\", "\\\\").replace("\"", "\\");
+		key = data.get(key).replace("\\", "\\\\").replace("\"", "\\\"");
 		if (key.indexOf(' ') >= 0)
 		{
 			return '"' + key + '"';

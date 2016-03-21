@@ -1379,7 +1379,7 @@ public class YAML
 	private String getWriteValue(String key)
 	{
 		key = data.get(key).replace("\\", "\\\\").replace("\"", "\\\"");
-		if (key.indexOf(' ') >= 0)
+		if (key.indexOf(' ') >= 0 || key.indexOf('{') >= 0 || key.indexOf('}') >= 0 || key.indexOf('[') >= 0 || key.indexOf(']') >= 0)
 		{
 			return '"' + key + '"';
 		}

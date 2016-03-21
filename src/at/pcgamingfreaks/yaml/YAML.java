@@ -65,9 +65,10 @@ public class YAML
 	 */
 	public void load(File file) throws IOException, YAMLInvalidContentException
 	{
-		FileInputStream inputStream = new FileInputStream(file);
-		load(inputStream);
-		inputStream.close();
+		try (FileInputStream inputStream = new FileInputStream(file))
+		{
+			load(inputStream);
+		}
 	}
 
 	/**

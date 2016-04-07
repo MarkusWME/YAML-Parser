@@ -6,6 +6,8 @@ import java.util.*;
 @SuppressWarnings("unused")
 public class YAML
 {
+	private static final int BOM_SIZE = 4;
+
 	private HashMap<String, String> data;
 	private List<String> writeHistory;
 	private HashSet<String> keys;
@@ -17,7 +19,7 @@ public class YAML
 	public YAML()
 	{
 		data = new HashMap<>();
-		writeHistory = new ArrayList<>();
+		writeHistory = new LinkedList<>();
 		keys = new HashSet<>();
 		emptyKeys = new HashSet<>();
 	}
@@ -79,15 +81,66 @@ public class YAML
 	 */
 	public void load(InputStream stream) throws IOException, YAMLInvalidContentException
 	{
-		String dataString = "";
+		byte[] bom = new byte[BOM_SIZE];
+		String encoding = null;
+		InputStreamReader reader;
+		int unread;
+		PushbackInputStream pushbackInputStream = new PushbackInputStream(stream, BOM_SIZE);
+		int count = pushbackInputStream.read(bom, 0, bom.length);
+		if (bom[0] == (byte)0xEF && bom[1] == (byte)0xBB && bom[2] == (byte)0xBF)
+		{
+			encoding = "UTF-8";
+			unread = count - 3;
+		}
+		else if (bom[0] == (byte)0xFE && bom[1] == (byte)0xFF)
+		{
+			encoding = "UTF-16BE";
+			unread = count - 2;
+		}
+		else if (bom[1] == (byte)0xFF && bom[0] == (byte)0xFE)
+		{
+			encoding = "UTF-16LE";
+			unread = count - 2;
+		}
+		else if (bom[0] == (byte)0x00 && bom[1] == (byte)0x00 && bom[2] == (byte)0xFE && bom[3] == (byte)0xFF)
+		{
+			encoding = "UTF-32BE";
+			unread = count - 4;
+		}
+		else if (bom[0] == (byte)0xFF && bom[1] == (byte)0xFE && bom[2] == (byte)0x00 && bom[3] == (byte)0x00)
+		{
+			encoding = "UTF-32LE";
+			unread = count - 4;
+		}
+		else
+		{
+			unread = count;
+		}
+		if (unread > 0)
+		{
+			pushbackInputStream.unread(bom, (count - unread), unread);
+		}
+		else if (unread < -1)
+		{
+			pushbackInputStream.unread(bom, 0, 0);
+		}
+		if (encoding == null)
+		{
+			reader = new InputStreamReader(pushbackInputStream);
+		}
+		else
+		{
+			reader = new InputStreamReader(pushbackInputStream, encoding);
+		}
+		StringBuilder data = new StringBuilder();
 		int content;
-		content = stream.read();
+		content = reader.read();
 		while (content != -1)
 		{
-			dataString += (char)content;
-			content = stream.read();
+			data.append((char)content);
+			content = reader.read();
 		}
-		load(dataString);
+		load(data.toString());
 	}
 
 	/**
@@ -97,8 +150,8 @@ public class YAML
 	public void load(String dataString) throws YAMLInvalidContentException
 	{
 		clear();
-		List<Integer> indentations = new ArrayList<>();
-		List<Integer> indentationIndices = new ArrayList<>();
+		List<Integer> indentations = new LinkedList<>();
+		List<Integer> indentationIndices = new LinkedList<>();
 		indentations.add(0);
 		indentationIndices.add(0);
 		String[] lines = dataString.split("\r?\n");
@@ -475,7 +528,7 @@ public class YAML
 	public List<Byte> getByteList(String key) throws YAMLKeyNotFoundException, NumberFormatException
 	{
 		List<String> stringValues = getStringList(key);
-		List<Byte> values = new ArrayList<>();
+		List<Byte> values = new LinkedList<>();
 		for (String value : stringValues)
 		{
 			values.add(Byte.parseByte(value));
@@ -497,7 +550,7 @@ public class YAML
 		{
 			return defaultValue;
 		}
-		List<Byte> values = new ArrayList<>();
+		List<Byte> values = new LinkedList<>();
 		for (String value : stringValues)
 		{
 			values.add(Byte.parseByte(value));
@@ -539,7 +592,7 @@ public class YAML
 	public List<Short> getShortList(String key) throws YAMLKeyNotFoundException, NumberFormatException
 	{
 		List<String> stringValues = getStringList(key);
-		List<Short> values = new ArrayList<>();
+		List<Short> values = new LinkedList<>();
 		for (String value : stringValues)
 		{
 			values.add(Short.parseShort(value));
@@ -561,7 +614,7 @@ public class YAML
 		{
 			return defaultValue;
 		}
-		List<Short> values = new ArrayList<>();
+		List<Short> values = new LinkedList<>();
 		for (String value : stringValues)
 		{
 			values.add(Short.parseShort(value));
@@ -603,7 +656,7 @@ public class YAML
 	public List<Integer> getIntList(String key) throws YAMLKeyNotFoundException, NumberFormatException
 	{
 		List<String> stringValues = getStringList(key);
-		List<Integer> values = new ArrayList<>();
+		List<Integer> values = new LinkedList<>();
 		for (String value : stringValues)
 		{
 			values.add(Integer.parseInt(value));
@@ -625,7 +678,7 @@ public class YAML
 		{
 			return defaultValue;
 		}
-		List<Integer> values = new ArrayList<>();
+		List<Integer> values = new LinkedList<>();
 		for (String value : stringValues)
 		{
 			values.add(Integer.parseInt(value));
@@ -667,7 +720,7 @@ public class YAML
 	public List<Long> getLongList(String key) throws YAMLKeyNotFoundException, NumberFormatException
 	{
 		List<String> stringValues = getStringList(key);
-		List<Long> values = new ArrayList<>();
+		List<Long> values = new LinkedList<>();
 		for (String value : stringValues)
 		{
 			values.add(Long.parseLong(value));
@@ -689,7 +742,7 @@ public class YAML
 		{
 			return defaultValue;
 		}
-		List<Long> values = new ArrayList<>();
+		List<Long> values = new LinkedList<>();
 		for (String value : stringValues)
 		{
 			values.add(Long.parseLong(value));
@@ -731,7 +784,7 @@ public class YAML
 	public List<Float> getFloatList(String key) throws YAMLKeyNotFoundException, NumberFormatException
 	{
 		List<String> stringValues = getStringList(key);
-		List<Float> values = new ArrayList<>();
+		List<Float> values = new LinkedList<>();
 		for (String value : stringValues)
 		{
 			values.add(Float.parseFloat(value));
@@ -753,7 +806,7 @@ public class YAML
 		{
 			return defaultValue;
 		}
-		List<Float> values = new ArrayList<>();
+		List<Float> values = new LinkedList<>();
 		for (String value : stringValues)
 		{
 			values.add(Float.parseFloat(value));
@@ -795,7 +848,7 @@ public class YAML
 	public List<Double> getDoubleList(String key) throws YAMLKeyNotFoundException, NumberFormatException
 	{
 		List<String> stringValues = getStringList(key);
-		List<Double> values = new ArrayList<>();
+		List<Double> values = new LinkedList<>();
 		for (String value : stringValues)
 		{
 			values.add(Double.parseDouble(value));
@@ -817,7 +870,7 @@ public class YAML
 		{
 			return defaultValue;
 		}
-		List<Double> values = new ArrayList<>();
+		List<Double> values = new LinkedList<>();
 		for (String value : stringValues)
 		{
 			values.add(Double.parseDouble(value));
@@ -856,7 +909,7 @@ public class YAML
 	public List<Boolean> getBooleanList(String key) throws YAMLKeyNotFoundException
 	{
 		List<String> stringValues = getStringList(key);
-		List<Boolean> values = new ArrayList<>();
+		List<Boolean> values = new LinkedList<>();
 		for (String value : stringValues)
 		{
 			values.add(Boolean.parseBoolean(value));
@@ -877,7 +930,7 @@ public class YAML
 		{
 			return defaultValue;
 		}
-		List<Boolean> values = new ArrayList<>();
+		List<Boolean> values = new LinkedList<>();
 		for (String value : stringValues)
 		{
 			values.add(Boolean.parseBoolean(value));
@@ -929,7 +982,7 @@ public class YAML
 	public List<Character> getCharList(String key) throws YAMLKeyNotFoundException, YAMLInvalidContentException
 	{
 		List<String> stringValues = getStringList(key);
-		List<Character> values = new ArrayList<>();
+		List<Character> values = new LinkedList<>();
 		for (String value : stringValues)
 		{
 			if (value.length() == 1)
@@ -959,7 +1012,7 @@ public class YAML
 		{
 			return defaultValue;
 		}
-		List<Character> values = new ArrayList<>();
+		List<Character> values = new LinkedList<>();
 		for (String value : stringValues)
 		{
 			if (value.length() == 1)
@@ -1020,7 +1073,7 @@ public class YAML
 		if (keys.contains(key + ".0"))
 		{
 			key += ".";
-			List<String> values = new ArrayList<>();
+			List<String> values = new LinkedList<>();
 			values.add(data.get(key + "0"));
 			for (int i = 1; i < Integer.MAX_VALUE; i++)
 			{
@@ -1049,7 +1102,7 @@ public class YAML
 		if (keys.contains(key + ".0"))
 		{
 			key += ".";
-			List<String> values = new ArrayList<>();
+			List<String> values = new LinkedList<>();
 			values.add(data.get(key + "0"));
 			for (int i = 1; i < Integer.MAX_VALUE; i++)
 			{

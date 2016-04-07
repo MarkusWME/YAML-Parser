@@ -7,6 +7,7 @@ import java.util.*;
 public class YAML
 {
 	private static final int BOM_SIZE = 4;
+	private static final int BUFFER_SIZE = 512;
 
 	private HashMap<String, String> data;
 	private List<String> writeHistory;
@@ -132,13 +133,14 @@ public class YAML
 		{
 			reader = new InputStreamReader(pushbackInputStream, encoding);
 		}
+		bom = null;
+		char[] buffer = new char[BUFFER_SIZE];
 		StringBuilder data = new StringBuilder();
-		int content;
-		content = reader.read();
-		while (content != -1)
+		count = reader.read(buffer, 0, buffer.length);
+		while (count > 0)
 		{
-			data.append((char)content);
-			content = reader.read();
+			data.append(buffer, 0, count);
+			count = reader.read(buffer, 0, buffer.length);
 		}
 		load(data.toString());
 	}

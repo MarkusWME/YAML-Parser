@@ -83,66 +83,50 @@ public class YAML
 	public void load(InputStream stream) throws IOException, YAMLInvalidContentException
 	{
 		byte[] bom = new byte[BOM_SIZE];
-		String encoding = null;
-		InputStreamReader reader;
+		String encoding = "UTF-8";
 		int unread;
-		PushbackInputStream pushbackInputStream = new PushbackInputStream(stream, BOM_SIZE);
-		int count = pushbackInputStream.read(bom, 0, bom.length);
-		if (bom[0] == (byte)0xEF && bom[1] == (byte)0xBB && bom[2] == (byte)0xBF)
+		try(PushbackInputStream pushbackInputStream = new PushbackInputStream(stream, BOM_SIZE))
 		{
-			encoding = "UTF-8";
-			unread = count - 3;
+			int count = pushbackInputStream.read(bom, 0, bom.length);
+			if(bom[0] == (byte) 0xEF && bom[1] == (byte) 0xBB && bom[2] == (byte) 0xBF)
+			{
+				encoding = "UTF-8";
+				unread = count - 3;
+			}
+			else if(bom[0] == (byte) 0xFE && bom[1] == (byte) 0xFF)
+			{
+				encoding = "UTF-16BE";
+				unread = count - 2;
+			}
+			else if(bom[0] == (byte) 0xFF && bom[1] == (byte) 0xFE)
+			{
+				encoding = "UTF-16LE";
+				unread = count - 2;
+			}
+			else if(bom[0] == (byte) 0x00 && bom[1] == (byte) 0x00 && bom[2] == (byte) 0xFE && bom[3] == (byte) 0xFF)
+			{
+				encoding = "UTF-32BE";
+				unread = count - 4;
+			}
+			else if(bom[0] == (byte) 0xFF && bom[1] == (byte) 0xFE && bom[2] == (byte) 0x00 && bom[3] == (byte) 0x00)
+			{
+				encoding = "UTF-32LE";
+				unread = count - 4;
+			}
+			else
+			{
+				unread = count;
+			}
+			if(unread > 0)
+			{
+				pushbackInputStream.unread(bom, (count - unread), unread);
+			}
+			else if(unread < -1)
+			{
+				pushbackInputStream.unread(bom, 0, 0);
+			}
+			load(new Scanner(pushbackInputStream, encoding).useDelimiter("\\Z").next());
 		}
-		else if (bom[0] == (byte)0xFE && bom[1] == (byte)0xFF)
-		{
-			encoding = "UTF-16BE";
-			unread = count - 2;
-		}
-		else if (bom[1] == (byte)0xFF && bom[0] == (byte)0xFE)
-		{
-			encoding = "UTF-16LE";
-			unread = count - 2;
-		}
-		else if (bom[0] == (byte)0x00 && bom[1] == (byte)0x00 && bom[2] == (byte)0xFE && bom[3] == (byte)0xFF)
-		{
-			encoding = "UTF-32BE";
-			unread = count - 4;
-		}
-		else if (bom[0] == (byte)0xFF && bom[1] == (byte)0xFE && bom[2] == (byte)0x00 && bom[3] == (byte)0x00)
-		{
-			encoding = "UTF-32LE";
-			unread = count - 4;
-		}
-		else
-		{
-			unread = count;
-		}
-		if (unread > 0)
-		{
-			pushbackInputStream.unread(bom, (count - unread), unread);
-		}
-		else if (unread < -1)
-		{
-			pushbackInputStream.unread(bom, 0, 0);
-		}
-		if (encoding == null)
-		{
-			reader = new InputStreamReader(pushbackInputStream);
-		}
-		else
-		{
-			reader = new InputStreamReader(pushbackInputStream, encoding);
-		}
-		bom = null;
-		char[] buffer = new char[BUFFER_SIZE];
-		StringBuilder data = new StringBuilder();
-		count = reader.read(buffer, 0, buffer.length);
-		while (count > 0)
-		{
-			data.append(buffer, 0, count);
-			count = reader.read(buffer, 0, buffer.length);
-		}
-		load(data.toString());
 	}
 
 	/**

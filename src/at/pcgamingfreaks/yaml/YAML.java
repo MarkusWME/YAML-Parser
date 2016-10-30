@@ -13,6 +13,7 @@ public class YAML
 	private List<String> writeHistory;
 	private HashSet<String> keys;
 	private HashSet<String> emptyKeys;
+	private String encoding = "UTF-8";
 
 	/**
 	 * Default Constructor for initializing an empty YAML object
@@ -83,7 +84,7 @@ public class YAML
 	public void load(InputStream stream) throws IOException, YAMLInvalidContentException
 	{
 		byte[] bom = new byte[BOM_SIZE];
-		String encoding = "UTF-8";
+		encoding = "UTF-8";
 		int unread;
 		try(PushbackInputStream pushbackInputStream = new PushbackInputStream(stream, BOM_SIZE))
 		{
@@ -234,11 +235,15 @@ public class YAML
 	 */
 	public void save(File file) throws YAMLNotInitializedException, FileNotFoundException
 	{
-		FileOutputStream stream = new FileOutputStream(file);
-		PrintStream out = new PrintStream(stream);
-		out.append(saveAsString());
-		out.flush();
-		out.close();
+		try(FileOutputStream stream = new FileOutputStream(file); PrintStream out = new PrintStream(stream, true, encoding))
+		{
+			out.append(saveAsString());
+			out.flush();
+		}
+		catch(IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -253,7 +258,6 @@ public class YAML
 		DataOutputStream out = new DataOutputStream(stream);
 		out.writeBytes(saveAsString());
 		out.flush();
-		out.close();
 		return stream;
 	}
 
@@ -1386,14 +1390,14 @@ public class YAML
 	 */
 	private String getIndentation(String key)
 	{
-		String indentation = "";
+		StringBuilder indentation = new StringBuilder("");
 		int startIndex = key.indexOf(".");
 		while (startIndex >= 0)
 		{
-			indentation += "  ";
+			indentation.append("  ");
 			startIndex = key.indexOf(".", startIndex + 1);
 		}
-		return indentation;
+		return indentation.toString();
 	}
 
 	/**

@@ -90,4 +90,19 @@ public class Tests
 		assertEquals("a", listValueTest.getString("List.2"));
 		assertEquals("list", listValueTest.getString("List.3"));
 	}
+
+	@Test
+	public void testNamedListWithoutIndentationAndMultipleData() throws YAMLKeyNotFoundException, YAMLInvalidContentException
+	{
+		YAML listValueTest = new YAML("Document:\n  List:\n  - This\n  - is\n  - a\n  - list");
+		assertEquals("This", listValueTest.getString("Document.List.0"));
+		assertEquals("is", listValueTest.getString("Document.List.1"));
+		assertEquals("a", listValueTest.getString("Document.List.2"));
+		assertEquals("list", listValueTest.getString("Document.List.3"));
+		listValueTest = new YAML("this:\n  Document:\n    List:\n    - This\n    - is\n    - a\n    - list");
+		assertEquals("This", listValueTest.getString("this.Document.List.0"));
+		assertEquals("is", listValueTest.getString("this.Document.List.1"));
+		assertEquals("a", listValueTest.getString("this.Document.List.2"));
+		assertEquals("list", listValueTest.getString("this.Document.List.3"));
+	}
 }

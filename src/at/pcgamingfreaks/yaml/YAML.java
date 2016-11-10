@@ -215,7 +215,7 @@ public class YAML
 							indentationIndices.add(0);
 						}
 						int currentIndex = indentationIndices.get(listIndentationIndex);
-						saveValues((globalKey.length() == 0 ? "" : globalKey + ".") + (!equalLevelList || key.length() > 0 ? key + "." : "") + currentIndex, line.substring(1).trim());
+						saveValues((globalKey.length() == 0 || (equalLevelList && indentationCount > 0) ? "" : globalKey + ".") + (!equalLevelList || key.length() > 0 ? key + "." : "") + currentIndex, line.substring(1).trim());
 						indentationIndices.set(listIndentationIndex, currentIndex + 1);
 					}
 					else

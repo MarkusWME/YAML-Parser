@@ -193,6 +193,10 @@ public class YAML
 					}
 					else
 					{
+						if (line.trim().charAt(0) == '-')
+						{
+							break;
+						}
 						globalKey = key;
 						indentations.add(indentationCount);
 						indentationIndices.add(0);
@@ -204,10 +208,15 @@ public class YAML
 				{
 					if(line.charAt(0) == '-')
 					{
-						int currentIndex = indentationIndices.get(indentationIndex);
-						key = (globalKey.length() == 0 ? "" : globalKey + ".") + currentIndex;
-						indentationIndices.set(indentationIndex, currentIndex + 1);
-						saveValues(key, line.substring(1).trim());
+						boolean equalLevelList = (indentationCount == indentations.get(indentationIndex));
+						int listIndentationIndex = indentationIndex + (equalLevelList ? 1 : 0);
+						if (indentationIndices.size() <= listIndentationIndex)
+						{
+							indentationIndices.add(0);
+						}
+						int currentIndex = indentationIndices.get(listIndentationIndex);
+						saveValues((globalKey.length() == 0 ? "" : globalKey + ".") + (!equalLevelList || key.length() > 0 ? key + "." : "") + currentIndex, line.substring(1).trim());
+						indentationIndices.set(listIndentationIndex, currentIndex + 1);
 					}
 					else
 					{

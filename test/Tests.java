@@ -70,4 +70,24 @@ public class Tests
 		keys.add("Line4.1");
 		assertEquals(keys, subKeyTest.getKeys(true));
 	}
+
+	@Test
+	public void testNamedListWithIndentation() throws YAMLKeyNotFoundException, YAMLInvalidContentException
+    {
+		YAML listValueTest = new YAML("List:\n  - This\n  - is\n  - a\n  - list");
+		assertEquals("This", listValueTest.getString("List.0"));
+		assertEquals("is", listValueTest.getString("List.1"));
+		assertEquals("a", listValueTest.getString("List.2"));
+		assertEquals("list", listValueTest.getString("List.3"));
+	}
+
+	@Test
+	public void testNamedListWithoutIndentation() throws YAMLKeyNotFoundException, YAMLInvalidContentException
+    {
+		YAML listValueTest = new YAML("List:\n- This\n- is\n- a\n- list");
+		assertEquals("This", listValueTest.getString("List.0"));
+		assertEquals("is", listValueTest.getString("List.1"));
+		assertEquals("a", listValueTest.getString("List.2"));
+		assertEquals("list", listValueTest.getString("List.3"));
+	}
 }

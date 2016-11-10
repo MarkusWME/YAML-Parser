@@ -145,6 +145,7 @@ public class YAML
 		String globalKey = "";
 		String key = "";
 		String value = "";
+		String listKey = "";
 		int indentationCount;
 		int indentationIndex = 0;
 		for (String line : lines)
@@ -214,6 +215,11 @@ public class YAML
 						{
 							indentationIndices.add(0);
 						}
+						else if (equalLevelList && !listKey.equals(key))
+						{
+							indentationIndices.set(listIndentationIndex, 0);
+						}
+						listKey = key;
 						int currentIndex = indentationIndices.get(listIndentationIndex);
 						saveValues((globalKey.length() == 0 || (equalLevelList && indentationCount > 0) ? "" : globalKey + ".") + (!equalLevelList || key.length() > 0 ? key + "." : "") + currentIndex, line.substring(1).trim());
 						indentationIndices.set(listIndentationIndex, currentIndex + 1);

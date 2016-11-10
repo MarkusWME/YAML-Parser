@@ -99,6 +99,11 @@ public class Tests
 		assertEquals("is", listValueTest.getString("Document.List.1"));
 		assertEquals("a", listValueTest.getString("Document.List.2"));
 		assertEquals("list", listValueTest.getString("Document.List.3"));
+		listValueTest = new YAML("Document:\n  List1:\n  - This\n  - is\n  List2:\n  - a\n  - list");
+		assertEquals("This", listValueTest.getString("Document.List1.0"));
+		assertEquals("is", listValueTest.getString("Document.List1.1"));
+		assertEquals("a", listValueTest.getString("Document.List2.0"));
+		assertEquals("list", listValueTest.getString("Document.List2.1"));
 		listValueTest = new YAML("this:\n  Document:\n    List:\n    - This\n    - is\n    - a\n    - list");
 		assertEquals("This", listValueTest.getString("this.Document.List.0"));
 		assertEquals("is", listValueTest.getString("this.Document.List.1"));

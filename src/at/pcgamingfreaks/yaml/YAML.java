@@ -148,6 +148,7 @@ public class YAML
 		String listKey = "";
 		String multiline = "";
 		String trimmedLine;
+		int firstCharacter;
 		int indentationCount;
 		int indentationIndex = 0;
 		for (String line : lines)
@@ -159,9 +160,43 @@ public class YAML
 			}
 			else
 			{
-				if (trimmedLine.charAt(0) == '\\' && multiline.length() > 0)
+				firstCharacter = 0;
+				for (char character : line.toCharArray())
 				{
-					line = trimmedLine.replace("\\", "");
+					if (character == ' ' || character == '\t' || character == '#' || character == '-')
+					{
+						firstCharacter++;
+					}
+					else
+					{
+						break;
+					}
+				}
+				if (multiline.length() > 0)
+				{
+					firstCharacter = 0;
+					for (char character : multiline.toCharArray())
+					{
+						if (character == ' ' || character == '\t' || character == '#' || character == '-')
+						{
+							firstCharacter++;
+						}
+						else
+						{
+							break;
+						}
+					}
+					line = line.substring(firstCharacter);
+					if (trimmedLine.charAt(0) == '\\')
+					{
+						line = line.replace("\\", "");
+					}
+					if (trimmedLine.charAt(trimmedLine.length() - 1) != '\'' && trimmedLine.charAt(trimmedLine.length() - 1) != '\"')
+					{
+						multiline += line;
+						continue;
+					}
+
 				}
 				if (trimmedLine.charAt(0) == '#')
 				{
@@ -170,6 +205,10 @@ public class YAML
 				else if (trimmedLine.charAt(trimmedLine.length() - 1) == '\\')
 				{
 					multiline += line.substring(0, line.lastIndexOf('\\'));
+				}
+				else if (line.length() > firstCharacter && ((line.charAt(firstCharacter) == '\'' && trimmedLine.charAt(trimmedLine.length() - 1) != '\'') || (line.charAt(firstCharacter) == '\"' && trimmedLine.charAt(trimmedLine.length() - 1) != '\"')))
+				{
+					multiline = line;
 				}
 				else
 				{

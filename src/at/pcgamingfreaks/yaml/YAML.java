@@ -146,95 +146,114 @@ public class YAML
 		String key = "";
 		String value = "";
 		String listKey = "";
+		String multiline = "";
+		String trimmedLine;
 		int indentationCount;
 		int indentationIndex = 0;
 		for (String line : lines)
 		{
+			trimmedLine = line.trim();
 			if (line.replaceAll("\\s*", "").length() == 0)
 			{
 				saveToWriteHistory("emptyline");
 			}
-			else if (line.trim().charAt(0) == '#')
-			{
-				saveToWriteHistory(line);
-			}
 			else
 			{
-				indentationCount = 0;
-				while (line.length() > 0)
+				if (trimmedLine.charAt(0) == '\\' && multiline.length() > 0)
 				{
-					if (line.charAt(0) == ' ')
-					{
-						++indentationCount;
-					}
-					else if (line.charAt(0) == '\t')
-					{
-						indentationCount += 4;
-					}
-					else
-					{
-						break;
-					}
-					line = line.substring(1);
+					line = trimmedLine.replace("\\", "");
 				}
-				while (indentationCount != indentations.get(indentationIndex))
+				if (trimmedLine.charAt(0) == '#')
 				{
-					if(indentationCount < indentations.get(indentationIndex))
+					saveToWriteHistory(line);
+				}
+				else if (trimmedLine.charAt(trimmedLine.length() - 1) == '\\')
+				{
+					multiline += line.substring(0, line.lastIndexOf('\\'));
+				}
+				else
+				{
+					if (multiline.length() > 0) {
+						line = multiline + line;
+						trimmedLine = line.trim();
+						multiline = "";
+					}
+					indentationCount = 0;
+					while (line.length() > 0)
 					{
-						if (indentationIndex == 1)
+						if (line.charAt(0) == ' ')
 						{
-							globalKey = "";
+							++indentationCount;
+						}
+						else if (line.charAt(0) == '\t')
+						{
+							indentationCount += 4;
 						}
 						else
-						{
-							globalKey = globalKey.substring(0, globalKey.lastIndexOf('.'));
-						}
-						indentationIndices.remove(indentationIndex);
-						indentations.remove(indentationIndex--);
-					}
-					else
-					{
-						if (line.trim().charAt(0) == '-')
 						{
 							break;
 						}
-						globalKey = key;
-						indentations.add(indentationCount);
-						indentationIndices.add(0);
-						++indentationIndex;
+						line = line.substring(1);
 					}
-				}
-				line = line.trim();
-				if (line.length() > 0)
-				{
-					if(line.charAt(0) == '-')
+					while (indentationCount != indentations.get(indentationIndex))
 					{
-						boolean equalLevelList = (indentationCount == indentations.get(indentationIndex));
-						int listIndentationIndex = indentationIndex + (equalLevelList ? 1 : 0);
-						if (indentationIndices.size() <= listIndentationIndex)
+						if(indentationCount < indentations.get(indentationIndex))
 						{
-							indentationIndices.add(0);
-						}
-						else if (equalLevelList && !listKey.equals(key))
-						{
-							indentationIndices.set(listIndentationIndex, 0);
-						}
-						listKey = key;
-						int currentIndex = indentationIndices.get(listIndentationIndex);
-						saveValues((globalKey.length() == 0 || !equalLevelList || indentationCount > 0 ? "" : globalKey + ".") + (!equalLevelList || key.length() > 0 ? key + "." : "") + currentIndex, line.substring(1).trim());
-						indentationIndices.set(listIndentationIndex, currentIndex + 1);
-					}
-					else
-					{
-						int splitIndex = line.indexOf(':');
-						if (splitIndex < 0)
-						{
-							throw new YAMLInvalidContentException("The YAML content is invalid");
+							if (indentationIndex == 1)
+							{
+								globalKey = "";
+							}
+							else
+							{
+								globalKey = globalKey.substring(0, globalKey.lastIndexOf('.'));
+							}
+							indentationIndices.remove(indentationIndex);
+							indentations.remove(indentationIndex--);
 						}
 						else
 						{
-							key = (globalKey.length() == 0 ? "" : globalKey + ".") + line.substring(0, splitIndex);
-							saveValues(key, line.substring(splitIndex + 1).trim());
+							if (trimmedLine.charAt(0) == '-')
+							{
+								break;
+							}
+							globalKey = key;
+							indentations.add(indentationCount);
+							indentationIndices.add(0);
+							++indentationIndex;
+						}
+					}
+					line = trimmedLine;
+					if (line.length() > 0)
+					{
+						if(line.charAt(0) == '-')
+						{
+							boolean equalLevelList = (indentationCount == indentations.get(indentationIndex));
+							int listIndentationIndex = indentationIndex + (equalLevelList ? 1 : 0);
+							if (indentationIndices.size() <= listIndentationIndex)
+							{
+								indentationIndices.add(0);
+							}
+							else if (equalLevelList && !listKey.equals(key))
+							{
+								indentationIndices.set(listIndentationIndex, 0);
+							}
+							listKey = key;
+							int currentIndex = indentationIndices.get(listIndentationIndex);
+							saveValues((globalKey.length() == 0 || !equalLevelList || indentationCount > 0 ? "" : globalKey + ".") + (!equalLevelList || key.length() > 0 ? key + "." : "") + currentIndex, line.substring(1).trim());
+							indentationIndices.set(listIndentationIndex, currentIndex + 1);
+						}
+						else
+						{
+							int splitIndex = line.indexOf(':');
+							if (splitIndex < 0)
+							{
+								throw new YAMLInvalidContentException("The YAML content is invalid");
+							}
+							else
+							{
+								key = (globalKey.length() == 0 ? "" : globalKey + ".") + line.substring(0, splitIndex);
+								saveValues(key, line.substring(splitIndex + 1).trim());
+							}
 						}
 					}
 				}

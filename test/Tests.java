@@ -110,4 +110,13 @@ public class Tests
 		assertEquals("a", listValueTest.getString("this.Document.List.2"));
 		assertEquals("list", listValueTest.getString("this.Document.List.3"));
 	}
+
+    @Test
+	public void testMultiLineTexts() throws YAMLInvalidContentException, YAMLKeyNotFoundException {
+		YAML multilineTest = new YAML("test: value\nmulti:\n- \"This is a\\\n  \\ test text\"\n- \"And this is\\\n  another one\"\ntest2: \"another value\"");
+        assertEquals("value", multilineTest.getString("test"));
+        assertEquals("another value", multilineTest.getString("test2"));
+        assertEquals("This is a test text", multilineTest.getString("multi.0"));
+        assertEquals("And this is  another one", multilineTest.getString("multi.1"));
+	}
 }

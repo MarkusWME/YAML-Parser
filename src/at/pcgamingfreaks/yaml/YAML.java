@@ -206,7 +206,7 @@ public class YAML
 				{
 					multiline += line.substring(0, line.lastIndexOf('\\'));
 				}
-				else if (line.length() > firstCharacter && line.indexOf(':') < 0 && ((line.charAt(firstCharacter) == '\'' && trimmedLine.charAt(trimmedLine.length() - 1) != '\'') || (line.charAt(firstCharacter) == '\"' && trimmedLine.charAt(trimmedLine.length() - 1) != '\"')))
+				else if (line.length() > firstCharacter && (line.indexOf(':') < 0 || line.indexOf('-') >= 0) && ((line.charAt(firstCharacter) == '\'' && trimmedLine.charAt(trimmedLine.length() - 1) != '\'') || (line.charAt(firstCharacter) == '\"' && trimmedLine.charAt(trimmedLine.length() - 1) != '\"')))
 				{
 					multiline = line;
 				}

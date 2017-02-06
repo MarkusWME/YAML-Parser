@@ -206,7 +206,7 @@ public class YAML
 				{
 					multiline += line.substring(0, line.lastIndexOf('\\'));
 				}
-				else if (line.length() > firstCharacter && ((line.charAt(firstCharacter) == '\'' && trimmedLine.charAt(trimmedLine.length() - 1) != '\'') || (line.charAt(firstCharacter) == '\"' && trimmedLine.charAt(trimmedLine.length() - 1) != '\"')))
+				else if (line.length() > firstCharacter && line.indexOf(':') < 0 && ((line.charAt(firstCharacter) == '\'' && trimmedLine.charAt(trimmedLine.length() - 1) != '\'') || (line.charAt(firstCharacter) == '\"' && trimmedLine.charAt(trimmedLine.length() - 1) != '\"')))
 				{
 					multiline = line;
 				}
@@ -290,8 +290,16 @@ public class YAML
 							}
 							else
 							{
-								key = (globalKey.length() == 0 ? "" : globalKey + ".") + line.substring(0, splitIndex);
-								saveValues(key, line.substring(splitIndex + 1).trim());
+								if ((line.charAt(0) == '\'' && line.charAt(splitIndex - 1) == '\'') || (line.charAt(0) == '\"' && line.charAt(splitIndex - 1) == '\"'))
+								{
+									key = (globalKey.length() == 0 ? "" : globalKey + ".") + line.substring(1, splitIndex - 1);
+									saveValues(key, line.substring(splitIndex + 1).trim());
+								}
+								else
+								{
+									key = (globalKey.length() == 0 ? "" : globalKey + ".") + line.substring(0, splitIndex);
+									saveValues(key, line.substring(splitIndex + 1).trim());
+								}
 							}
 						}
 					}

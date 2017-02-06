@@ -128,4 +128,13 @@ public class Tests
 		assertEquals("This is a test text", multilineTest.getString("multi.0"));
 		assertEquals("And this is another one", multilineTest.getString("multi.1"));
 	}
+
+	@Test
+	public void testEscapedKeys() throws YAMLInvalidContentException, YAMLKeyNotFoundException {
+		YAML multilineTest = new YAML("'269': value\nmulti:\n- \"This is a\n   test text\"\n- \"And this is\n   another one\"\ntest.2: \"test\"");
+		assertEquals("value", multilineTest.getString("269"));
+		assertEquals("test", multilineTest.getString("test.2"));
+		assertEquals("This is a test text", multilineTest.getString("multi.0"));
+		assertEquals("And this is another one", multilineTest.getString("multi.1"));
+	}
 }

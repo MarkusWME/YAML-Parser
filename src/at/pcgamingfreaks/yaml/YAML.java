@@ -101,17 +101,20 @@ public class YAML
 			}
 			else if(bom[0] == (byte) 0xFF && bom[1] == (byte) 0xFE)
 			{
-				encoding = "UTF-16LE";
-				unread = count - 2;
+				if(bom[2] == (byte) 0x00 && bom[3] == (byte) 0x00)
+				{
+					encoding = "UTF-32LE";
+					unread = count - 4;
+				}
+				else
+				{
+					encoding = "UTF-16LE";
+					unread = count - 2;
+				}
 			}
 			else if(bom[0] == (byte) 0x00 && bom[1] == (byte) 0x00 && bom[2] == (byte) 0xFE && bom[3] == (byte) 0xFF)
 			{
 				encoding = "UTF-32BE";
-				unread = count - 4;
-			}
-			else if(bom[0] == (byte) 0xFF && bom[1] == (byte) 0xFE && bom[2] == (byte) 0x00 && bom[3] == (byte) 0x00)
-			{
-				encoding = "UTF-32LE";
 				unread = count - 4;
 			}
 			else
@@ -1043,16 +1046,8 @@ public class YAML
 		throw new YAMLInvalidContentException("The value you searched for could not be converted to a character");
 	}
 
-	/**
-	 * Gets a list of char values from the YAML object
-	 * @param key The key of the list you want to get
-	 * @return The char list of the key you searched for
-	 * @throws YAMLKeyNotFoundException If the key you searched for could not be found in the YAML object
-	 * @throws YAMLInvalidContentException If the value of the searched key can not be converted to a char list
-	 */
-	public List<Character> getCharList(String key) throws YAMLKeyNotFoundException, YAMLInvalidContentException
+	private List<Character> getCharListFromStringList(List<String> stringValues) throws YAMLInvalidContentException
 	{
-		List<String> stringValues = getStringList(key);
 		List<Character> values = new LinkedList<>();
 		for (String value : stringValues)
 		{
@@ -1072,6 +1067,18 @@ public class YAML
 	/**
 	 * Gets a list of char values from the YAML object
 	 * @param key The key of the list you want to get
+	 * @return The char list of the key you searched for
+	 * @throws YAMLKeyNotFoundException If the key you searched for could not be found in the YAML object
+	 * @throws YAMLInvalidContentException If the value of the searched key can not be converted to a char list
+	 */
+	public List<Character> getCharList(String key) throws YAMLKeyNotFoundException, YAMLInvalidContentException
+	{
+		return getCharListFromStringList(getStringList(key));
+	}
+
+	/**
+	 * Gets a list of char values from the YAML object
+	 * @param key The key of the list you want to get
 	 * @param defaultValue The default value that should be returned if the key could not be found
 	 * @return The char list of the key you searched for
 	 * @throws YAMLInvalidContentException If the value of the searched key can not be converted to a char list
@@ -1083,20 +1090,7 @@ public class YAML
 		{
 			return defaultValue;
 		}
-		List<Character> values = new LinkedList<>();
-		for (String value : stringValues)
-		{
-			if (value.length() == 1)
-			{
-				values.add(value.charAt(0));
-			}
-			else
-			{
-				values.clear();
-				throw new YAMLInvalidContentException("The value you searched for could not be converted to a character");
-			}
-		}
-		return values;
+		return getCharListFromStringList(stringValues);
 	}
 
 	/**
@@ -1141,24 +1135,8 @@ public class YAML
 	 */
 	public List<String> getStringList(String key) throws YAMLKeyNotFoundException
 	{
-		if (keys.contains(key + ".0"))
-		{
-			key += ".";
-			List<String> values = new LinkedList<>();
-			values.add(data.get(key + "0"));
-			for (int i = 1; i < Integer.MAX_VALUE; i++)
-			{
-				if (keys.contains(key + i))
-				{
-					values.add(data.get(key + i));
-				}
-				else
-				{
-					break;
-				}
-			}
-			return values;
-		}
+		List<String> list = getStringList(key, null);
+		if(list != null) return list;
 		throw new YAMLKeyNotFoundException("The key you wanted to retrieve (\"" + key + "\") could not be found in the YAML object");
 	}
 
@@ -1471,7 +1449,7 @@ public class YAML
 	 */
 	private String getIndentation(String key)
 	{
-		StringBuilder indentation = new StringBuilder("");
+		StringBuilder indentation = new StringBuilder();
 		int startIndex = key.indexOf(".");
 		while (startIndex >= 0)
 		{

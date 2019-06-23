@@ -387,7 +387,7 @@ public class YAML implements AutoCloseable, YamlGetter
 					if(nNode == null)
 					{
 						nNode = new YamlNode(sKey);
-						node.addElement(nNode);
+						node.addNode(nNode);
 						nodeMap.put(keyBuilder.toString(), nNode);
 					}
 					node = nNode;

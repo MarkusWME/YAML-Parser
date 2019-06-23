@@ -64,6 +64,26 @@ public class YamlNode implements YamlElement
 		elements.add(element);
 	}
 
+	public void addNode(@NotNull YamlNode node) throws YamlInvalidContentException
+	{
+		if(valueCount > 1 || list || array) throw new YamlInvalidContentException("It is not possible to add a sub key to a value list!");
+		nodeMap.put(node.getName(), node);
+		float best = -1;
+		int i = 0, bestId = -1;
+		for(YamlElement element : elements)
+		{
+			if(element instanceof YamlNode)
+			{
+				if(((YamlNode) element).getName().startsWith(node.getName())) bestId = i;
+				else if(node.getName().startsWith(((YamlNode) element).getName())) bestId = i+1;
+				else continue;
+				break;
+			}
+			i++;
+		}
+		if(bestId >= 0 && bestId < elements.size()) elements.add(bestId, node); else elements.add(node);
+	}
+
 	public void removeElement(@NotNull YamlElement element)
 	{
 		if(element instanceof YamlNode)

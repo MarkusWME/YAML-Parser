@@ -51,6 +51,7 @@ class YamlReader implements AutoCloseable
 	@NotNull YamlNode process() throws YamlInvalidContentException
 	{
 		String multiline = null;
+		int mlStartLineNr = -1;
 		for(String line : lines)
 		{
 			lineNr++;
@@ -60,13 +61,14 @@ class YamlReader implements AutoCloseable
 				String trimmedLine = line.trim();
 				trimmedLine = (trimmedLine.length() == 0) ? "\n" : " " + trimmedLine;
 				line = multiline + trimmedLine;
+				multiline = null;
 			}
 			if(line.matches("[^\\\\]*(\\\\\\\\)*\\\\\\s*$")) // line ends is escaped
 			{
 				multiline = line.replaceAll("\\\\\\s*$", "");
+				if(mlStartLineNr == -1) mlStartLineNr = lineNr;
 				continue;
 			}
-			multiline = null;
 			//endregion
 			try
 			{
@@ -74,10 +76,12 @@ class YamlReader implements AutoCloseable
 			}
 			catch(YamlIsMultiLineException ignored) // Allows to process stuff that might cause a multiline error to be processed externally.
 			{
+				if(mlStartLineNr == -1) mlStartLineNr = lineNr;
 				multiline = line;
 			}
 		}
-		if(multiline != null) throw new YamlInvalidContentException("Unexpected end of file! Quoted string value has no end!");
+		if(multiline != null)
+			throw new YamlInvalidContentException("Unexpected end of file! Quoted string value started (" + mlStartLineNr + "), but has no end!");
 		footerComment = commentBuilder.toString();
 		return root;
 	}

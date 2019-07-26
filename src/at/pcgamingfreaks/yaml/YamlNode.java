@@ -22,6 +22,7 @@ public class YamlNode implements YamlElement
 	public YamlNode(String name)
 	{
 		this.name = name;
+		if(name.contains(" ")) quoteChar = '"';
 	}
 
 	public YamlNode(@NotNull String name, @Nullable String data) throws YamlInvalidContentException
@@ -39,7 +40,7 @@ public class YamlNode implements YamlElement
 	public YamlNode(@NotNull String name, @Nullable String data, @NotNull String comment, @Nullable Character quoteChar) throws YamlInvalidContentException
 	{
 		this(name, data, comment);
-		this.quoteChar = quoteChar;
+		if(this.quoteChar == null || quoteChar != null)	this.quoteChar = quoteChar;
 	}
 
 	public void addElement(@NotNull YamlElement element) throws YamlInvalidContentException

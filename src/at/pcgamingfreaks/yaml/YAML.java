@@ -158,7 +158,7 @@ public class YAML implements AutoCloseable, YamlGetter
 		if(parentKey.length() > 0) parentKey += '.';
 		parentKey += node.getName();
 		nodeMap.put(parentKey, node);
-		if(node.hasValue()) valueNodeMap.put(parentKey, node);
+		if(node.hasValue() || node.isArray()) valueNodeMap.put(parentKey, node);
 		if(!node.isList())
 		{
 			for(YamlElement child : node.getElements())

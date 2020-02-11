@@ -39,6 +39,14 @@ public class Tests
 		keys.add("Line3");
 		keys.add("Line4");
 		assertEquals(keys, keyTest.getKeys(false));
+		keyTest = new YAML("Line1: text\nLine2: text\nListEmpty: []\nList:\n  - group1\n  -group2\nListInline: [ stuff, moreStuff]");
+		keys = new HashSet<>();
+		keys.add("Line1");
+		keys.add("Line2");
+		keys.add("ListEmpty");
+		keys.add("List");
+		keys.add("ListInline");
+		assertEquals(keys, keyTest.getKeys(false));
 	}
 
 	@Test
@@ -125,5 +133,16 @@ public class Tests
 		assertEquals("New language value", saveTest.getString("Language.Lang1"));
 		saveTest.set("Language.Lang1000", "New language key and value");
 		assertEquals("New language key and value", saveTest.getString("Language.Lang1000"));
+	}
+
+	@Test
+	public void testArray() throws YamlKeyNotFoundException, YamlInvalidContentException
+	{
+		YAML yaml = new YAML("Data: [ data1, data2 ]\nEmpty: []");
+		List<String> list = new LinkedList<>();
+		assertEquals(list, yaml.getStringList("Empty"));
+		list.add("data1");
+		list.add("data2");
+		assertEquals(list, yaml.getStringList("Data"));
 	}
 }

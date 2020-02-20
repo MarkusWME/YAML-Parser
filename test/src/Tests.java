@@ -3,8 +3,8 @@ import at.pcgamingfreaks.yaml.YamlInvalidContentException;
 import at.pcgamingfreaks.yaml.YamlKeyNotFoundException;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -50,10 +50,26 @@ public class Tests
 	}
 
 	@Test
+	public void testGetKeysFiltered() throws YamlInvalidContentException
+	{
+		YAML keyTest = new YAML("Line1: text\nLine2: text\nLine3: text\nLine4:\n  - group1\n  -group2");
+		ArrayList<String> keys = new ArrayList<>(2);
+		keys.add("Line1");
+		keys.add("Line3");
+		assertEquals(keys, keyTest.getKeysFiltered("Line[13]"));
+		keyTest = new YAML("Line1: text\nLine2: text\nListEmpty: []\nList:\n  - group1\n  -group2\nListInline: [ stuff, moreStuff]");
+		keys = new ArrayList<>(3);
+		keys.add("ListEmpty");
+		keys.add("List");
+		keys.add("ListInline");
+		assertEquals(keys, keyTest.getKeysFiltered("List.*"));
+	}
+
+	@Test
 	public void testNamedListWithIndentation() throws YamlKeyNotFoundException, YamlInvalidContentException
     {
 		YAML listValueTest = new YAML("List:\n  - This\n  - is\n  - a\n  - list");
-	    List<String> expected = new LinkedList<>();
+	    List<String> expected = new ArrayList<>();
 	    expected.add("This");
 	    expected.add("is");
 	    expected.add("a");
@@ -65,7 +81,7 @@ public class Tests
 	public void testNamedListWithoutIndentation() throws YamlKeyNotFoundException, YamlInvalidContentException
     {
 		YAML listValueTest = new YAML("List:\n- This\n- is\n- a\n- list");
-	    List<String> expected = new LinkedList<>();
+	    List<String> expected = new ArrayList<>();
 	    expected.add("This");
 	    expected.add("is");
 	    expected.add("a");
@@ -76,7 +92,7 @@ public class Tests
 	@Test
 	public void testNamedListWithoutIndentationAndMultipleData() throws YamlKeyNotFoundException, YamlInvalidContentException
 	{
-		List<String> expected = new LinkedList<>(), expected2 = new LinkedList<>(), expected3 = new LinkedList<>();
+		List<String> expected = new ArrayList<>(), expected2 = new ArrayList<>(), expected3 = new ArrayList<>();
 		expected.add("This");
 		expected.add("is");
 		expected.add("a");
@@ -97,7 +113,7 @@ public class Tests
     @Test
 	public void testMultiLineTexts() throws YamlInvalidContentException, YamlKeyNotFoundException
     {
-		YAML multilineTest = new YAML("test: value\nmulti:\n- \'This is a\\\n  test text\'\n- \"And this is\\\n   another one\"\ntest2: \"another value\"");
+		YAML multilineTest = new YAML("test: value\nmulti:\n- 'This is a\\\n  test text'\n- \"And this is\\\n   another one\"\ntest2: \"another value\"");
         assertEquals("value", multilineTest.getString("test"));
         assertEquals("another value", multilineTest.getString("test2"));
         assertEquals("This is a test text", multilineTest.getStringList("multi").get(0));
@@ -139,7 +155,7 @@ public class Tests
 	public void testArray() throws YamlKeyNotFoundException, YamlInvalidContentException
 	{
 		YAML yaml = new YAML("Data: [ data1, data2 ]\nEmpty: []");
-		List<String> list = new LinkedList<>();
+		List<String> list = new ArrayList<>();
 		assertEquals(list, yaml.getStringList("Empty"));
 		list.add("data1");
 		list.add("data2");

@@ -1,10 +1,12 @@
 package at.pcgamingfreaks.yaml;
 
+import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class YAML implements AutoCloseable, YamlGetter
 {
@@ -116,7 +118,10 @@ public class YAML implements AutoCloseable, YamlGetter
 			{
 				pushbackInputStream.unread(bom, 0, 0);
 			}
-			load(new Scanner(pushbackInputStream, encoding).useDelimiter("\\Z").next());
+			try(Scanner scanner = new Scanner(pushbackInputStream, encoding))
+			{
+				load(scanner.useDelimiter("\\Z").next());
+			}
 		}
 	}
 
@@ -267,7 +272,7 @@ public class YAML implements AutoCloseable, YamlGetter
 	@Override
 	public boolean isSet(@NotNull String key)
 	{
-		return valueNodeMap.keySet().contains(key);
+		return valueNodeMap.containsKey(key);
 	}
 
 	/**
@@ -277,6 +282,11 @@ public class YAML implements AutoCloseable, YamlGetter
 	public @NotNull Set<String> getKeys()
 	{
 		return new HashSet<>(valueNodeMap.keySet());
+	}
+
+	public @NotNull Collection<String> getKeysFiltered(final @Language("RegExp") String filterRegex)
+	{
+		return getKeys().stream().filter(key -> key.matches(filterRegex)).collect(Collectors.toList());
 	}
 
 	/**

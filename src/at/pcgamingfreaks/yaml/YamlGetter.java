@@ -4,7 +4,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 // Mainly abused for mixins to keep the main class more readable
@@ -59,7 +59,7 @@ public interface YamlGetter
 	default @NotNull List<Byte> getByteList(@NotNull String key) throws YamlKeyNotFoundException, NumberFormatException
 	{
 		List<String> stringValues = getStringList(key);
-		List<Byte> values = new LinkedList<>();
+		List<Byte> values = new ArrayList<>(stringValues.size());
 		for (String value : stringValues)
 		{
 			values.add(Byte.parseByte(value));
@@ -82,7 +82,7 @@ public interface YamlGetter
 		{
 			return defaultValue;
 		}
-		List<Byte> values = new LinkedList<>();
+		List<Byte> values =  new ArrayList<>(stringValues.size());
 		for (String value : stringValues)
 		{
 			values.add(Byte.parseByte(value));
@@ -124,7 +124,7 @@ public interface YamlGetter
 	default @NotNull List<Short> getShortList(@NotNull String key) throws YamlKeyNotFoundException, NumberFormatException
 	{
 		List<String> stringValues = getStringList(key);
-		List<Short> values = new LinkedList<>();
+		List<Short> values =  new ArrayList<>(stringValues.size());
 		for (String value : stringValues)
 		{
 			values.add(Short.parseShort(value));
@@ -147,7 +147,7 @@ public interface YamlGetter
 		{
 			return defaultValue;
 		}
-		List<Short> values = new LinkedList<>();
+		List<Short> values =  new ArrayList<>(stringValues.size());
 		for (String value : stringValues)
 		{
 			values.add(Short.parseShort(value));
@@ -189,7 +189,7 @@ public interface YamlGetter
 	default @NotNull List<Integer> getIntList(@NotNull String key) throws YamlKeyNotFoundException, NumberFormatException
 	{
 		List<String> stringValues = getStringList(key);
-		List<Integer> values = new LinkedList<>();
+		List<Integer> values =  new ArrayList<>(stringValues.size());
 		for (String value : stringValues)
 		{
 			values.add(Integer.parseInt(value));
@@ -212,7 +212,7 @@ public interface YamlGetter
 		{
 			return defaultValue;
 		}
-		List<Integer> values = new LinkedList<>();
+		List<Integer> values =  new ArrayList<>(stringValues.size());
 		for (String value : stringValues)
 		{
 			values.add(Integer.parseInt(value));
@@ -254,7 +254,7 @@ public interface YamlGetter
 	default @NotNull List<Long> getLongList(@NotNull String key) throws YamlKeyNotFoundException, NumberFormatException
 	{
 		List<String> stringValues = getStringList(key);
-		List<Long> values = new LinkedList<>();
+		List<Long> values =  new ArrayList<>(stringValues.size());
 		for (String value : stringValues)
 		{
 			values.add(Long.parseLong(value));
@@ -277,7 +277,7 @@ public interface YamlGetter
 		{
 			return defaultValue;
 		}
-		List<Long> values = new LinkedList<>();
+		List<Long> values =  new ArrayList<>(stringValues.size());
 		for (String value : stringValues)
 		{
 			values.add(Long.parseLong(value));
@@ -319,7 +319,7 @@ public interface YamlGetter
 	default @NotNull List<Float> getFloatList(@NotNull String key) throws YamlKeyNotFoundException, NumberFormatException
 	{
 		List<String> stringValues = getStringList(key);
-		List<Float> values = new LinkedList<>();
+		List<Float> values =  new ArrayList<>(stringValues.size());
 		for (String value : stringValues)
 		{
 			values.add(Float.parseFloat(value));
@@ -342,7 +342,7 @@ public interface YamlGetter
 		{
 			return defaultValue;
 		}
-		List<Float> values = new LinkedList<>();
+		List<Float> values =  new ArrayList<>(stringValues.size());
 		for (String value : stringValues)
 		{
 			values.add(Float.parseFloat(value));
@@ -384,7 +384,7 @@ public interface YamlGetter
 	default @NotNull List<Double> getDoubleList(@NotNull String key) throws YamlKeyNotFoundException, NumberFormatException
 	{
 		List<String> stringValues = getStringList(key);
-		List<Double> values = new LinkedList<>();
+		List<Double> values =  new ArrayList<>(stringValues.size());
 		for (String value : stringValues)
 		{
 			values.add(Double.parseDouble(value));
@@ -407,7 +407,7 @@ public interface YamlGetter
 		{
 			return defaultValue;
 		}
-		List<Double> values = new LinkedList<>();
+		List<Double> values =  new ArrayList<>(stringValues.size());
 		for (String value : stringValues)
 		{
 			values.add(Double.parseDouble(value));
@@ -446,7 +446,7 @@ public interface YamlGetter
 	default @NotNull List<Boolean> getBooleanList(@NotNull String key) throws YamlKeyNotFoundException
 	{
 		List<String> stringValues = getStringList(key);
-		List<Boolean> values = new LinkedList<>();
+		List<Boolean> values =  new ArrayList<>(stringValues.size());
 		for (String value : stringValues)
 		{
 			values.add(Boolean.parseBoolean(value));
@@ -468,7 +468,7 @@ public interface YamlGetter
 		{
 			return defaultValue;
 		}
-		List<Boolean> values = new LinkedList<>();
+		List<Boolean> values =  new ArrayList<>(stringValues.size());
 		for (String value : stringValues)
 		{
 			values.add(Boolean.parseBoolean(value));
@@ -512,7 +512,7 @@ public interface YamlGetter
 
 	static @NotNull List<Character> getCharListFromStringList(@NotNull List<String> stringValues) throws YamlInvalidContentException
 	{
-		List<Character> values = new LinkedList<>();
+		List<Character> values =  new ArrayList<>(stringValues.size());
 		for (String value : stringValues)
 		{
 			if (value.length() == 1)

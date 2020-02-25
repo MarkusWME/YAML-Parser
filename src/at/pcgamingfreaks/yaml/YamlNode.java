@@ -3,13 +3,16 @@ package at.pcgamingfreaks.yaml;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.lang.reflect.Array;
 import java.util.*;
 
 @Data
-public class YamlNode implements YamlElement
+public class YamlNode implements YamlElement, Cloneable
 {
 	private String name, comment = "";
 	private boolean list = false, array = false;
@@ -41,6 +44,17 @@ public class YamlNode implements YamlElement
 	{
 		this(name, data, comment);
 		if(this.quoteChar == null || quoteChar != null)	this.quoteChar = quoteChar;
+	}
+
+	public YamlNode(final @NotNull YamlNode node)
+	{
+		this(node.getName());
+		setComment(node.getComment());
+		setList(node.isList());
+		setArray(node.isArray());
+		setQuoteChar(node.getQuoteChar());
+		elements.addAll(node.getElements());
+		nodeMap.putAll(node.getNodeMap());
 	}
 
 	public void addElement(@NotNull YamlElement element) throws YamlInvalidContentException

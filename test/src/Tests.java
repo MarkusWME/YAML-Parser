@@ -1,13 +1,16 @@
 import at.pcgamingfreaks.yaml.YAML;
 import at.pcgamingfreaks.yaml.YamlInvalidContentException;
 import at.pcgamingfreaks.yaml.YamlKeyNotFoundException;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class Tests
 {
@@ -160,5 +163,17 @@ public class Tests
 		list.add("data1");
 		list.add("data2");
 		assertEquals(list, yaml.getStringList("Data"));
+	}
+
+	@Test
+	public void testGetSection() throws YamlInvalidContentException, YamlKeyNotFoundException
+	{
+		YAML yaml = new YAML("Data1:\n  Data1_2: true\nData2:\n  Data2_1: true");
+		YAML section = yaml.getSection("Data2");
+		Set<String> keys = new HashSet<>();
+		keys.add("Data2_1");
+		assertEquals(keys, section.getKeys());
+		assertTrue(section.isSet("Data2_1"));
+		assertTrue(section.getBoolean("Data2_1"));
 	}
 }

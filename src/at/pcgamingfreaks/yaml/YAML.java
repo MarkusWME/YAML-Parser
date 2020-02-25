@@ -158,6 +158,18 @@ public class YAML implements AutoCloseable, YamlGetter
 		load("", root);
 	}
 
+	/**
+	 * Function to load data from a given yaml tree to the YAML object with a new root node
+	 * @param root The root node of the yaml object from which data should be loaded
+	 */
+	public void loadNewRoot(final @NotNull YamlNode root)
+	{
+		clear();
+		this.root = new YamlNode(root);
+		this.root.setName("");
+		load("", this.root);
+	}
+
 	private void load(@NotNull String parentKey, final @NotNull YamlNode node)
 	{
 		if(parentKey.length() > 0) parentKey += '.';
@@ -353,7 +365,7 @@ public class YAML implements AutoCloseable, YamlGetter
 		YamlNode node = nodeMap.get(key);
 		if(node == null) throw new YamlKeyNotFoundException("Key " + key + " not found");
 		YAML section = new YAML();
-		section.load(node);
+		section.loadNewRoot(node);
 		return section;
 	}
 

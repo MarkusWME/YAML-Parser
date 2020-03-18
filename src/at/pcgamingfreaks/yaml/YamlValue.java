@@ -5,27 +5,45 @@ import org.jetbrains.annotations.Nullable;
 
 import lombok.Data;
 
+import java.util.regex.Pattern;
+
 @Data
 public class YamlValue implements YamlElement
 {
+	private static final Pattern MUST_BE_QUOTED = Pattern.compile("[^\\d\\w]");
+
 	private String value;
 	private String comment = "", preComment = "";
 	private Character quoteChar = null;
 
 	public YamlValue(final @NotNull String data)
 	{
-		value = data;
+		this(data, null);
 	}
 
 	public YamlValue(final @NotNull String data, final  @Nullable String comment)
 	{
-		this(data);
-		if(comment != null) this.comment = comment;
+		this(data, comment, null);
 	}
 
-	public YamlValue(final @NotNull String data, final @Nullable String comment, final @Nullable Character quoteChar)
+	public YamlValue(final @NotNull String data, final @Nullable String comment, @Nullable Character quoteChar)
 	{
-		this(data, comment);
+		if(comment != null) this.comment = comment;
 		this.quoteChar = quoteChar;
+		setValue(data);
+	}
+
+	public void setValue(final @NotNull String value)
+	{
+		this.value = value;
+		if(quoteChar == null)
+		{
+			boolean needsQuote = MUST_BE_QUOTED.matcher(value).find();
+			if(needsQuote)
+			{
+				if(value.contains("\"") && !value.contains("'")) quoteChar = '\'';
+				else quoteChar = '"';
+			}
+		}
 	}
 }

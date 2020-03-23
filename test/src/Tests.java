@@ -240,4 +240,18 @@ public class Tests
 			assertEquals("daf#afd", saveTest.getString("Database.Meta"));
 		}
 	}
+
+	@Test
+	public void testCommentAfterValue() throws YamlInvalidContentException, YamlKeyNotFoundException
+	{
+		String yamlText = "WithComment: stuff #comment\nWithComment2: stuff#notAcomment #comment\nWithoutComment: stuff#notAcomment\nQuotedWithComment: \"test#test\" #comment\nQuotedWithComment2: \"test #test\" #comment";
+		try(YAML yaml = new YAML(yamlText))
+		{
+			assertEquals("stuff", yaml.getString("WithComment"));
+			assertEquals("stuff#notAcomment", yaml.getString("WithComment2"));
+			assertEquals("stuff#notAcomment", yaml.getString("WithoutComment"));
+			assertEquals("test#test", yaml.getString("QuotedWithComment"));
+			assertEquals("test #test", yaml.getString("QuotedWithComment2"));
+		}
+	}
 }

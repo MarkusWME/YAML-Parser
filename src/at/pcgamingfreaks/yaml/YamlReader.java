@@ -16,9 +16,10 @@ class YamlReader implements AutoCloseable
 {
 	@Language("RegExp") private static final String QUOTE_PATTERN = "[\"'](?:(?<=\")[^\"\\\\]*(?s:\\\\.[^\"\\\\]*)*\"|(?<=')[^'\\\\]*(?s:''[^']*)*')";
 	@Language("RegExp") private static final String COMMENT_PATTERN = "(?<comment>\\s*#.*)?";
+	@Language("RegExp") private static final String COMMENT_PATTERN_INLINE = "(?<comment>\\s+#.*)?";
 	private static final Pattern KEY_PATTERN = Pattern.compile("^(?<key>" + QUOTE_PATTERN + "|[^\\s:.'\"]+(\\.[^\\s:.'\"]+)*):");
-	private static final Pattern QUOTED_VALUE_PATTERN = Pattern.compile("^(?<value>" + QUOTE_PATTERN + ")" + COMMENT_PATTERN + "$");
-	private static final Pattern VALUE_PATTERN = Pattern.compile("^(?<value>[^#]*)" + COMMENT_PATTERN + "$");
+	private static final Pattern QUOTED_VALUE_PATTERN = Pattern.compile("^(?<value>" + QUOTE_PATTERN + ")" + COMMENT_PATTERN_INLINE + "$");
+	private static final Pattern VALUE_PATTERN = Pattern.compile("^(?<value>(.*?))" + COMMENT_PATTERN_INLINE + "$");
 
 	private final YamlNode root;
 	private final String[] lines;
@@ -172,7 +173,8 @@ class YamlReader implements AutoCloseable
 				Matcher matcher = QUOTED_VALUE_PATTERN.matcher(data);
 				if(!matcher.matches()) throw mlException;
 				comment = matcher.group("comment");
-				data = matcher.group("value").substring(1, data.length() - 1);
+				data = matcher.group("value");
+				data = data.substring(1, data.length() - 1);
 				switch(char1)
 				{
 					case '\'': data = data.replaceAll("''", "'"); break;
@@ -183,8 +185,8 @@ class YamlReader implements AutoCloseable
 			{
 				Matcher matcher = VALUE_PATTERN.matcher(data);
 				if(!matcher.matches()) throw new YamlInvalidContentException("Invalid value: " + data);
-				comment = matcher.group("comment");
 				data = matcher.group("value");
+				comment = matcher.group("comment");
 			}
 		}
 		YamlValue value = new YamlValue(data, comment, qChar);

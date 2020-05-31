@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  */
 class YamlReader implements AutoCloseable
 {
-	@Language("RegExp") private static final String QUOTE_PATTERN = "[\"'](?:(?<=\")[^\"\\\\]*(?s:\\\\.[^\"\\\\]*)*\"|(?<=')[^'\\\\]*(?s:''[^']*)*')";
+	@Language("RegExp") private static final String QUOTE_PATTERN = "[\"'](?:(?<=\")[^\"\\\\]*(?s:\\\\.[^\"\\\\]*)*\"|(?<=')[^']*(?s:''[^']*)*')";
 	@Language("RegExp") private static final String COMMENT_PATTERN = "(?<comment>\\s*#.*)?";
 	@Language("RegExp") private static final String COMMENT_PATTERN_INLINE = "(?<comment>\\s+#.*)?";
 	private static final Pattern KEY_PATTERN = Pattern.compile("^(?<key>" + QUOTE_PATTERN + "|[^\\s:.'\"]+(\\.[^\\s:.'\"]+)*):");

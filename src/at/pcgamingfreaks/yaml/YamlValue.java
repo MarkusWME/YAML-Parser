@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 @Data
 public class YamlValue implements YamlElement
 {
-	private static final Pattern MUST_BE_QUOTED = Pattern.compile("[^\\d\\w]");
+	private static final Pattern MUST_BE_QUOTED = Pattern.compile("[^-.\\w]");
 
 	private String value;
 	private String comment = "", preComment = "";

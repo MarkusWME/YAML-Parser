@@ -55,6 +55,7 @@ public class YamlNode implements YamlElement, Cloneable
 		setQuoteChar(node.getQuoteChar());
 		elements.addAll(node.getElements());
 		nodeMap.putAll(node.getNodeMap());
+		valueCount = node.valueCount;
 	}
 
 	public void addElement(@NotNull YamlElement element) throws YamlInvalidContentException
@@ -205,16 +206,7 @@ public class YamlNode implements YamlElement, Cloneable
 
 	private void addNewValue(@NotNull Object value) throws YamlInvalidContentException
 	{
-		YamlValue yamlValue;
-		if(value instanceof String)
-		{
-			yamlValue = new YamlValue((String) value, "", ((String) value).matches("\\w*") ? null : '"');
-		}
-		else
-		{
-			yamlValue = new YamlValue(value.toString());
-		}
-		addElement(yamlValue);
+		addElement(new YamlValue((value instanceof String) ? (String) value : value.toString()));
 	}
 
 	public void set(@Nullable Object value) throws YamlInvalidContentException
@@ -244,16 +236,7 @@ public class YamlNode implements YamlElement, Cloneable
 				elements.clear();
 				for(Object val : (Iterable<?>) value)
 				{
-					YamlValue yamlValue;
-					if(val instanceof String)
-					{
-						yamlValue = new YamlValue((String) val, "", ((String) val).matches("\\w*") ? null : '"');
-					}
-					else
-					{
-						yamlValue = new YamlValue(val.toString());
-					}
-					addElement(yamlValue);
+					addElement(new YamlValue((val instanceof String) ? (String) val : val.toString()));
 				}
 				if(value.getClass().isArray()) array = true;
 			}

@@ -181,6 +181,12 @@ public class Tests
 			assertEquals("New language value", saveTest.getString("Language.Lang1"));
 			saveTest.set("Language.Lang1000", "New language key and value");
 			assertEquals("New language key and value", saveTest.getString("Language.Lang1000"));
+
+			saveTest.set("MagicValueStr", "2.5");
+			saveTest.set("MagicValueFloat", 2.5);
+			saveTest.set("MagicValueInt", 25);
+
+			assertEquals("Language:\n" + "  Lang1: \"New language value\"\n" + "  Lang1000: \"New language key and value\"\n" + "  Lang2: \"ext\"\n" + "  Lang3: \"xt\"\n" + "  Lang4: \"t\"\n" + "MagicValueStr: 2.5\n" + "MagicValueFloat: 2.5\n" + "MagicValueInt: 25", saveTest.saveAsString());
 		}
 	}
 

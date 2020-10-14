@@ -323,6 +323,28 @@ public class YAML implements AutoCloseable, YamlGetter
 		return returnedKeys;
 	}
 
+	public Set<String> getNodeKeys()
+	{
+		return new HashSet<>(nodeMap.keySet());
+	}
+
+	public Set<String> getNodeKeys(boolean subKeys)
+	{
+		if (subKeys)
+		{
+			return getNodeKeys();
+		}
+		Set<String> returnedKeys = new HashSet<>();
+		for(String key : getNodeKeys())
+		{
+			if (key.indexOf('.') < 0)
+			{
+				returnedKeys.add(key);
+			}
+		}
+		return returnedKeys;
+	}
+
 	/**
 	 * Gets a yaml value element from the YAML object
 	 *

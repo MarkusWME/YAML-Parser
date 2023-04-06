@@ -4,6 +4,8 @@ import at.pcgamingfreaks.yaml.YamlKeyNotFoundException;
 
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -258,6 +260,35 @@ public class Tests
 			assertEquals("stuff#notAcomment", yaml.getString("WithoutComment"));
 			assertEquals("test#test", yaml.getString("QuotedWithComment"));
 			assertEquals("test #test", yaml.getString("QuotedWithComment2"));
+		}
+	}
+
+	@Test
+	public void testEmptyFile() throws YamlInvalidContentException, IOException {
+		try(YAML yaml = new YAML(new File("test/resources/empty.yml"))) {
+			assertTrue(true);
+		}
+	}
+
+	@Test
+	public void testCreateFileAndSave() throws YamlInvalidContentException, IOException, YamlKeyNotFoundException {
+		File testing = new File("test/resources/testCreateFileAndSave.yml");
+		if(testing.exists()) {
+			testing.delete();
+		}
+		testing.createNewFile();
+		try(YAML yaml = new YAML(testing)) {
+			yaml.set("testing", "testing");
+			yaml.save(testing);
+		}
+
+		File testingAfterSaving =  new File("test/resources/testCreateFileAndSave.yml");
+		try (YAML yaml = new YAML(testingAfterSaving)) {
+			assertEquals(yaml.getString("testing"), "testing");
+		} finally {
+			if (testingAfterSaving.exists()) {
+				testingAfterSaving.delete();
+			}
 		}
 	}
 }

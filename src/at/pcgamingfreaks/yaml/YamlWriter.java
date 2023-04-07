@@ -4,12 +4,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Helper class to convert a yaml object beck to a string
  */
 class YamlWriter implements AutoCloseable
 {
+	private static final Pattern NEEDS_ESCAPE_PATTERN = Pattern.compile("[\\s:\\\\\"'\\.]");
+
 	private final @NotNull YamlNode root;
 	private StringBuilder yamlBuilder;
 	private String tab = "    ", footerComment = "", newLineSymbol = "\n";
@@ -65,7 +68,7 @@ class YamlWriter implements AutoCloseable
 			nextIndentation = indentation + tab;
 			yamlBuilder.append(node.getComment());
 			yamlBuilder.append(indentation);
-			yamlBuilder.append(quoteString(node.getName(), node.getQuoteChar(), indentation)).append(':');
+			yamlBuilder.append(formatNodeName(node, indentation)).append(':');
 		}
 		else nextIndentation = "";
 		if(node.isArray()) writeArray(node, nextIndentation);
@@ -90,6 +93,28 @@ class YamlWriter implements AutoCloseable
 		}
 	}
 
+	private boolean stringNeedsEscaping(final @NotNull String string)
+	{
+		return NEEDS_ESCAPE_PATTERN.matcher(string).find();
+	}
+
+	private @NotNull String formatNodeName(final @NotNull YamlNode node, final @NotNull String indentation)
+	{
+		char preferredEscape = '\0';
+		if (stringNeedsEscaping(node.getName()))
+		{
+			if(node.getName().contains("'"))
+			{
+				return quoteString(node.getName(), '"', indentation);
+			}
+			else
+			{
+				return quoteString(node.getName(), '\'', indentation);
+			}
+		}
+		return node.getName();
+	}
+
 	private @NotNull String quoteString(@NotNull String val, @Nullable Character quoteChar, @NotNull String indentation)
 	{
 		if(quoteChar != null)
@@ -97,16 +122,16 @@ class YamlWriter implements AutoCloseable
 			switch(quoteChar)
 			{
 				case '"':
-					val = val.replaceAll("\\\\", "\\\\\\\\").replaceAll("\"", "\\\\\"").replaceAll("\n", "\\n");
+					val = val.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
 					break;
 				case '\'':
-					val = val.replaceAll("'", "''");
+					val = val.replace("'", "''");
 			}
 			val = quoteChar + val + quoteChar;
 		}
 		if(quoteChar == null || quoteChar == '\'')
 		{
-			val = val.replaceAll("\n", "\n" + indentation + "\n" + indentation);
+			val = val.replace("\n", "\n" + indentation + "\n" + indentation);
 		}
 		return val;
 	}

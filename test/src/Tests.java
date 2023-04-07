@@ -291,4 +291,25 @@ public class Tests
 			}
 		}
 	}
+
+	@Test
+	public void testSaveAndLoadAndSaveAgainNodeWeithSpecialCharName() throws IOException, YamlInvalidContentException
+	{
+		String yamlString = "";
+		try(YAML yaml = new YAML(yamlString))
+		{
+			yaml.set("X:\\Anime/DearS", "testing");
+			yamlString = yaml.saveAsString();
+		}
+		assertEquals("'X:\\Anime/DearS': testing\n", yamlString);
+
+		try(YAML yaml = new YAML(yamlString))
+		{
+			yaml.set("X:\\Anime/DearS", "testing2");
+			yamlString = yaml.saveAsString();
+			assertEquals(2, yaml.getNodeKeys().size());
+		}
+
+		assertEquals("'X:\\Anime/DearS': testing2", yamlString);
+	}
 }

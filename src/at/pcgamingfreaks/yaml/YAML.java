@@ -120,7 +120,13 @@ public class YAML implements AutoCloseable, YamlGetter
 			}
 			try(Scanner scanner = new Scanner(pushbackInputStream, encoding))
 			{
-				load(scanner.useDelimiter("\\Z").next());
+				if (scanner.hasNext()) {
+					load(scanner.useDelimiter("\\Z").next());
+				}
+				else
+				{
+					load("");
+				}
 			}
 		}
 	}
